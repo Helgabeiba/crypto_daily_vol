@@ -12,6 +12,7 @@
   import { ref, onMounted } from 'vue';
   import LineChart from './LineChart.vue';
   import { generatePastNDays } from '../utils/dateUtils.js';
+  // import axios from 'axios';
   
   export default {
     components: {
@@ -28,13 +29,20 @@
           Firi: [100, 105, 102, 108],
           NBX: [90, 93, 92, 88],
           Bitnord: [80, 81, 83, 82]
+        
+        // API call
+    //    return axios.get('API_ENDPOINT')
+    //    .then(response => response.data)
+    //    .catch(error => console.error('Failed to get exchange data', error));
         });
       }
   
       onMounted(() => {
         labels.value = generatePastNDays(4); 
+        console.log("Labels Generated: ", labels.value);
   
         fetchExchangeData().then(data => {
+            console.log("Data Fetched: ", data);
           const datasets = [];
           const colors = {
             Firi: 'rgba(75, 192, 192, 1)',
@@ -51,6 +59,7 @@
               data: data[exchange]
             });
           }
+          console.log("Datasets Formed:", datasets);
   
           chartData.value = datasets;
         });

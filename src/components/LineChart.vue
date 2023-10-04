@@ -16,7 +16,7 @@ export default {
     setup(props) {
       const chart = ref(null);
       let chartInstance = null;
-     // const labels = generatePastNDays(4);  // This will be our x-axis labels
+    // const labels = generatePastNDays(4);  // This will be our x-axis labels
   
       Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale);
   
@@ -26,11 +26,19 @@ export default {
           chartInstance.update();
         }
       }, { deep: true });
+
+      watch(() => props.labels, (newLabels) => {
+        if (chartInstance) {
+            chartInstance.data.labels = newLabels;
+            chartInstance.update();
+        }
+    });
+
   
       onMounted(() => {
         const ctx = chart.value.getContext('2d');
-        chartInstance = new Chart(ctx, {
-          type: 'line',
+        const chartConfig = {
+            type: 'line',
           data: {
             labels: props.labels,
             datasets: props.chartData
@@ -38,7 +46,9 @@ export default {
           options: {
             responsive: true
           }
-        });
+        }
+        console.log("Chart Configuration:", chartConfig);
+        chartInstance = new Chart(ctx, chartConfig);
       });
   
       return { chart };
@@ -46,9 +56,6 @@ export default {
 }
 </script>
 
-<style scoped>
-canvas {
-  width: 600px;
-  height: 400px;
-}
+<style>
+
 </style>
