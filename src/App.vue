@@ -1,16 +1,16 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
-  <LineChart />
+  <CryptoVolumeChart />
 </template>
 
 <script>
-import LineChart from './components/LineChart.vue'
+import CryptoVolumeChart from './components/CryptoVolumeChart.vue';
 
 export default {
   name: 'App',
   components: {
-    LineChart
-  }
+    CryptoVolumeChart
+}
 }
 </script>
 
