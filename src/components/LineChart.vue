@@ -44,7 +44,8 @@ export default {
             datasets: props.chartData
           },
           options: {
-            responsive: true
+            responsive: true,
+           // maintainAspectRatio: false
           }
         }
         console.log("Chart Configuration:", chartConfig);
@@ -56,6 +57,9 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+canvas {
+  width: 100% !important;
+  height: auto !important;
+}
 </style>
