@@ -1,15 +1,14 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <CryptoVolumeChart />
+  <DailyVolChart />
 </template>
 
 <script>
-import CryptoVolumeChart from './components/CryptoVolumeChart.vue';
+import DailyVolChart from './components/DailyVolChart.vue';
 
 export default {
   name: 'App',
   components: {
-    CryptoVolumeChart
+    DailyVolChart
 }
 }
 </script>
@@ -21,6 +20,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 100px;
 }
 </style>
