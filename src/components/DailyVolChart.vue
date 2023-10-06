@@ -1,14 +1,17 @@
 //DailyVolChart
 
 <template>
-  <div>
-      <canvas ref="chart"></canvas>
+  <div class="chart-container">
+    <canvas ref="chart"></canvas>
   </div>
 </template>
   
 <script>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend } from 'chart.js';
+
+Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend);
+
 
 export default {
   setup() {
@@ -16,8 +19,6 @@ export default {
     const labels = ref([]);
     const chart = ref(null);
     let chartInstance = null;
-
-    Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend);
 
     const data = [
       {
@@ -61,10 +62,8 @@ export default {
     //    return axios.get('API_ENDPOINT')
     //    .then(response => response.data)
     //    .catch(error => console.error('Failed to get exchange data', error));
-
-
-    onMounted(() => {
-      labels.value = data[0].data.map(entry => entry.date);
+    function transformData(rawData) {
+      labels.value = rawData[0].data.map(entry => entry.date);
       const datasets = [];
       const colors = {
         Firi: 'rgba(75, 192, 192, 1)',
@@ -73,7 +72,7 @@ export default {
         NewExchange: 'rgba(128, 0, 128, 1)'
       };
 
-      data.forEach(exchange => {
+      rawData.forEach(exchange => {
         datasets.push({
           label: exchange.name,
           backgroundColor: colors[exchange.name],
@@ -83,9 +82,11 @@ export default {
         });
       });
 
+      return datasets;
+    }
 
-
-      chartData.value = datasets;
+    onMounted(() => {
+      chartData.value = transformData(data);
 
       const ctx = chart.value.getContext('2d');
       const chartConfig = {
@@ -120,18 +121,26 @@ export default {
         chartInstance.data.labels = newLabels;
         chartInstance.update();
       }
-    });
+    }),
+    onBeforeUnmount(() => {
+      if(chartInstance) {
+        chartInstance.destroy()
+  }});
 
     return { chart };
   }
 }
 </script>
-  
+
 <style scoped>
+.chart-container {
+  font-family: Poppins, sans-serif;
+  position: relative;
+  width: 80vw;
+  height: 60vh;
+  margin: 0 auto;
+}
 canvas {
-  background-color: #f5f5f5;;
-  width: 800px !important;
-  height: auto !important;
+  background-color: #f5f5f5;
 }
 </style>
-  
