@@ -8,9 +8,9 @@
   
 <script>
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
-import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend } from 'chart.js';
+import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title } from 'chart.js';
 
-Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend);
+Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title);
 
 
 export default {
@@ -101,8 +101,14 @@ export default {
             legend: {
               display: true,
               position: 'bottom',
-              align: 'center'
-            }
+              align: 'center',
+              labels: {
+                font: {
+                  family: "'Poppins','sans-serif'",
+                  size: '14px',
+                }
+              }
+            },
           }
         }
       };
@@ -122,10 +128,11 @@ export default {
         chartInstance.update();
       }
     }),
-    onBeforeUnmount(() => {
-      if(chartInstance) {
-        chartInstance.destroy()
-  }});
+      onBeforeUnmount(() => {
+        if (chartInstance) {
+          chartInstance.destroy()
+        }
+      });
 
     return { chart };
   }
@@ -136,11 +143,14 @@ export default {
 .chart-container {
   font-family: Poppins, sans-serif;
   position: relative;
-  width: 80vw;
-  height: 60vh;
-  margin: 0 auto;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  min-height: 100vh;
+
 }
+
 canvas {
-  background-color: #f5f5f5;
+  background-color: transparent !important;
 }
 </style>
