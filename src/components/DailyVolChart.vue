@@ -1,8 +1,11 @@
 //DailyVolChart
 
 <template>
-  <div class="chart-container">
+  <div class="chart-container" v-if="dataAvailable">
     <canvas ref="chart"></canvas>
+  </div>
+  <div v-else>
+    Data is not available.
   </div>
 </template>
   
@@ -18,6 +21,7 @@ export default {
     const chartData = ref([]);
     const labels = ref([]);
     const chart = ref(null);
+    const dataAvailable = ref(true);
     let chartInstance = null;
 
     const data = [
@@ -66,10 +70,10 @@ export default {
       labels.value = rawData[0].data.map(entry => entry.date);
       const datasets = [];
       const colors = {
-        Firi: 'rgba(75, 192, 192, 1)',
-        NBX: 'rgba(255, 99, 132, 1)',
-        Bitnord: 'rgba(255, 205, 86, 1)',
-        NewExchange: 'rgba(128, 0, 128, 1)'
+        Firi:'#474aee',
+        NBX: '#beed5e',
+        Bitnord: '#f8f9fa',
+        NewExchange: '#dc3545'
       };
 
       rawData.forEach(exchange => {
@@ -84,9 +88,11 @@ export default {
 
       return datasets;
     }
+    //When API is available, add dataAvailable check snippet from notes.
 
     onMounted(() => {
       chartData.value = transformData(data);
+      dataAvailable.value = true;
 
       const ctx = chart.value.getContext('2d');
       const chartConfig = {
@@ -108,7 +114,19 @@ export default {
                   size: '14px',
                 }
               }
-            },
+            }
+          },
+          tooltips: {
+            enabled: true,
+            mode: 'index',
+            intersect: false,
+            callbacks: {
+              label: function(tooltipItem, data) {
+                let label = data.labels[tooltipItem.index] || '';
+                let value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                return `${label}: ${value}`;
+              }
+            }
           }
         }
       };
@@ -134,7 +152,7 @@ export default {
         }
       });
 
-    return { chart };
+    return { chart, dataAvailable};
   }
 }
 </script>
