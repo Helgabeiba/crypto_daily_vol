@@ -11,9 +11,9 @@
   
 <script>
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
-import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title } from 'chart.js';
+import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title, LogarithmicScale } from 'chart.js';
 
-Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title);
+Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title, LogarithmicScale);
 
 
 export default {
@@ -103,6 +103,25 @@ export default {
         },
         options: {
           responsive: true,
+          scales: {
+            y: {
+              type: 'logarithmic',
+              grace: '5%',
+              title: {
+                display: true,
+                text: 'Volum'
+              },
+              ticks: {
+                callback: function(value) {
+                  if(value === 1000000) return '1M';
+                  if(value === 100000) return '100k';
+                  if(value === 10000) return '10k';
+                  if(value === 1000) return '1k';
+                  return value;            
+                }
+              }
+            }
+          },
           plugins: {
             legend: {
               display: true,
