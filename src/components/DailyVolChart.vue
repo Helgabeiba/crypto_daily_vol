@@ -14,7 +14,7 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title, LogarithmicScale } from 'chart.js';
 
 Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title, LogarithmicScale);
-
+const BORDER_COLOR = '#b3b0b0';
 
 export default {
   setup() {
@@ -44,7 +44,7 @@ export default {
         ]
       },
       {
-        "name": "Bitnord",
+        "name": "JuJu",
         "data": [
           { "date": "2023-01-01", "nokVolume": "15597" },
           { "date": "2023-01-02", "nokVolume": "20597" },
@@ -53,7 +53,7 @@ export default {
         ]
       },
       {
-        "name": "NewExchange",
+        "name": "BareBitcoin",
         "data": [
           { "date": "2023-01-01", "nokVolume": "34242" },
           { "date": "2023-01-02", "nokVolume": "12323" },
@@ -70,10 +70,10 @@ export default {
       labels.value = rawData[0].data.map(entry => entry.date);
       const datasets = [];
       const colors = {
-        Firi:'#474aee',
+        Firi: '#474aee',
         NBX: '#beed5e',
-        Bitnord: '#f8f9fa',
-        NewExchange: '#dc3545'
+        JuJu: '#f8f9fa',
+        BareBitcoin: '#FD8002'
       };
 
       rawData.forEach(exchange => {
@@ -102,22 +102,52 @@ export default {
           datasets: chartData.value
         },
         options: {
+          layout: {
+            padding: {
+              left: 50,
+              right: 100
+            }
+          },
           responsive: true,
           scales: {
+            x: {
+              grid: {
+                color: BORDER_COLOR,
+                //borderColor: BORDER_COLOR,
+                //borderWidth: 2
+              },
+              ticks: {
+                font: {
+                  size: 20
+                }
+            },
+            },
             y: {
               type: 'logarithmic',
               grace: '5%',
+              grid: {
+                color: BORDER_COLOR,
+                //borderColor: BORDER_COLOR,
+                //borderWidth: 2
+              },
               title: {
                 display: true,
-                text: 'Volum'
+                text: 'Volum',
+                font: {
+                  size: 25,
+                }
               },
               ticks: {
-                callback: function(value) {
-                  if(value === 1000000) return '1M';
-                  if(value === 100000) return '100k';
-                  if(value === 10000) return '10k';
-                  if(value === 1000) return '1k';
-                  return value;            
+                maxTicksLimit: 10,
+                callback: function (value) {
+                  if (value === 1000000) return '1M';
+                  if (value === 100000) return '100k';
+                  if (value === 10000) return '10k';
+                  if (value === 1000) return '1k';
+                  return value;
+                },
+                font: {
+                  size: 20
                 }
               }
             }
@@ -130,7 +160,7 @@ export default {
               labels: {
                 font: {
                   family: "'Poppins','sans-serif'",
-                  size: '14px',
+                  size: 20,
                 }
               }
             }
@@ -140,7 +170,7 @@ export default {
             mode: 'index',
             intersect: false,
             callbacks: {
-              label: function(tooltipItem, data) {
+              label: function (tooltipItem, data) {
                 let label = data.labels[tooltipItem.index] || '';
                 let value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
                 return `${label}: ${value}`;
@@ -171,7 +201,7 @@ export default {
         }
       });
 
-    return { chart, dataAvailable};
+    return { chart, dataAvailable };
   }
 }
 </script>
@@ -179,12 +209,12 @@ export default {
 <style scoped>
 .chart-container {
   font-family: Poppins, sans-serif;
+  background: #030e19;
   position: relative;
   margin: 0;
   border: 0;
   padding: 0;
   min-height: 100vh;
-
 }
 
 canvas {
