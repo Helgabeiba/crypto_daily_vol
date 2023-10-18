@@ -14,7 +14,7 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title, LogarithmicScale } from 'chart.js';
 
 Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title, LogarithmicScale);
-const BORDER_COLOR = '#b3b0b0';
+const GRID_COLOR = '#b3b0b0';
 
 export default {
   setup() {
@@ -23,6 +23,7 @@ export default {
     const chart = ref(null);
     const dataAvailable = ref(true);
     let chartInstance = null;
+    const hoverLine = ref(null);
 
     const data = [
       {
@@ -90,6 +91,34 @@ export default {
     }
     //When API is available, add dataAvailable check snippet from notes.
 
+
+    const drawHoverLine = (e) => {
+        if (hoverLine.value) {
+          hoverLine.value.clear();
+          hoverLine.value = null;
+          chartInstance.update();
+        }
+
+        const elements = chartInstance.getElementsAtEventForMode(e, 'nearest', { axis: 'x', intersect: true }, true)
+        if (elements.length) {
+          const ctx = chart.value.getContext('2d');
+          const x = elements[0].element.x;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, chart.value.height);
+          ctx.strokeStyle = GRID_COLOR;
+          ctx.stroke();
+          ctx.restore();
+
+          hoverLine.value = {
+            clear: () => ctx.clearRect(0, 0, chart.value.width, chart.value.height)
+          };
+        }
+      };
+
+
     onMounted(() => {
       chartData.value = transformData(data);
       dataAvailable.value = true;
@@ -112,7 +141,7 @@ export default {
           scales: {
             x: {
               grid: {
-                color: BORDER_COLOR,
+                //color: BORDER_COLOR,
                 //borderColor: BORDER_COLOR,
                 //borderWidth: 2
               },
@@ -120,13 +149,13 @@ export default {
                 font: {
                   size: 20
                 }
-            },
+              },
             },
             y: {
               type: 'logarithmic',
               grace: '5%',
               grid: {
-                color: BORDER_COLOR,
+                //color: BORDER_COLOR,
                 //borderColor: BORDER_COLOR,
                 //borderWidth: 2
               },
@@ -180,6 +209,18 @@ export default {
         }
       };
       chartInstance = new Chart(ctx, chartConfig);
+
+
+
+      chart.value.addEventListener('mousemove', drawHoverLine);
+
+      chart.value.addEventListener('mouseout', () => {
+        if (hoverLine.value) {
+          hoverLine.value.clear();
+          hoverLine.value = null;
+          chartInstance.update();
+        }
+      });
     });
 
     watch(chartData, (newVal) => {
@@ -198,6 +239,15 @@ export default {
       onBeforeUnmount(() => {
         if (chartInstance) {
           chartInstance.destroy()
+
+          chart.value.removeEventListener('mousemove', drawHoverLine);
+          chart.value.removeEventListener('mouseout', () => {
+            if (hoverLine.value) {
+              hoverLine.value.clear();
+              hoverLine.value = null;
+              chartInstance.update();
+            }
+          });
         }
       });
 
