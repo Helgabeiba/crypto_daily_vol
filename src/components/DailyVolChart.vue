@@ -36,9 +36,6 @@ export default {
     let chartInstance = null;
     const selectedPeriod = ref('all');
 
-
-
-
     function findMaxValue(datasets) {
       let maxVal = -Infinity;
       datasets.forEach(dataset => {
@@ -174,9 +171,6 @@ export default {
           data
         });
       });
-
-
-
       /*       rawData.forEach(exchange => {
               datasets.push({
                 label: exchange.name,
@@ -188,6 +182,28 @@ export default {
             }); */
 
       return datasets;
+    }
+
+    function registerHoverLinePlugin() {
+      Chart.register({
+        id: 'hoverLinePlugin',
+        afterDraw: function (chartInstance) {
+          if (chartInstance.hoverLineX !== undefined) {
+            const ctx = chartInstance.ctx;
+            const yTop = chartInstance.scales.y.top;
+            const yBottom = chartInstance.scales.y.bottom;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(chartInstance.hoverLineX, yTop);
+            ctx.lineTo(chartInstance.hoverLineX, yBottom);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = GRID_COLOR;
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+      });
     }
 
     function initializeOrUpdateChart() {
@@ -302,15 +318,21 @@ export default {
               mode: 'nearest',
               axis: 'x',
               intersect: false,
-              bodyFontSize: 18,
-              titleFontSize: 20,
+              bodyFontSize: 22,
+              titleFontSize: 24,
               backgroundColor: GRID_COLOR,
               padding: 10,
               callbacks: {
+                title: function(toolTipItems) {
+                  console.log("Title callback called");
+                  const date = new Date(toolTipItems[0].label);
+                  const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug","Sept","Okt","Nov","Des"
+                ];
+                return date.getDate() + "." + monthNames[date.getMonth()] + "." + date.getFullYear();
+                },
                 label: function (tooltipItem, data) {
-                  let label = data.labels[tooltipItem.index] || '';
-                  let value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-                  return `${label}: ${value}`;
+                  console.log("Label callback called");
+                  return data.datasets[tooltipItem.datasetIndex].label + ": " + tooltipItem.formattedValue + "NOK";
                 }
               }
             }
@@ -320,32 +342,15 @@ export default {
       }
     }
 
+
+    registerHoverLinePlugin();
+
     //When API is available, add dataAvailable check snippet from notes.
     onMounted(async () => {
       const apiData = await fetchDataFromAPI();
       chartData.value = transformData(apiData);
       dataAvailable.value = apiData.length > 0;
-
-      Chart.register({
-        id: 'hoverLinePlugin',
-        afterDraw: function (chartInstance) {
-          if (chartInstance.hoverLineX !== undefined) {
-            const ctx = chartInstance.ctx;
-            const yTop = chartInstance.scales.y.top;
-            const yBottom = chartInstance.scales.y.bottom;
-
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(chartInstance.hoverLineX, yTop);
-            ctx.lineTo(chartInstance.hoverLineX, yBottom);
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = GRID_COLOR;
-            ctx.stroke();
-            ctx.restore();
-          }
-        }
-      });
-      initializeOrUpdateChart(); //
+      initializeOrUpdateChart();
     });
 
     watch(chartData, (newVal) => {
