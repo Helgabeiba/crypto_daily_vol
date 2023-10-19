@@ -23,7 +23,6 @@ export default {
     const chart = ref(null);
     const dataAvailable = ref(true);
     let chartInstance = null;
-    const hoverLine = ref(null);
 
     const data = [
       {
@@ -90,40 +89,32 @@ export default {
       return datasets;
     }
     //When API is available, add dataAvailable check snippet from notes.
-
-
-    const drawHoverLine = (e) => {
-        if (hoverLine.value) {
-          hoverLine.value.clear();
-          hoverLine.value = null;
-          chartInstance.update();
-        }
-
-        const elements = chartInstance.getElementsAtEventForMode(e, 'nearest', { axis: 'x', intersect: true }, true)
-        if (elements.length) {
-          const ctx = chart.value.getContext('2d');
-          const x = elements[0].element.x;
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, chart.value.height);
-          ctx.strokeStyle = GRID_COLOR;
-          ctx.stroke();
-          ctx.restore();
-
-          hoverLine.value = {
-            clear: () => ctx.clearRect(0, 0, chart.value.width, chart.value.height)
-          };
-        }
-      };
-
-
     onMounted(() => {
       chartData.value = transformData(data);
       dataAvailable.value = true;
 
       const ctx = chart.value.getContext('2d');
+
+      Chart.register({
+        id: 'hoverLinePlugin',
+        afterDraw: function(chartInstance) {
+            if(chartInstance.hoverLineX !== undefined) {
+                const ctx = chartInstance.ctx;
+                const yTop = chartInstance.scales.y.top;
+                const yBottom = chartInstance.scales.y.bottom;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(chartInstance.hoverLineX, yTop);
+                ctx.lineTo(chartInstance.hoverLineX, yBottom);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = GRID_COLOR;
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+    });
+
       const chartConfig = {
         type: 'line',
         data: {
@@ -143,7 +134,7 @@ export default {
               grid: {
                 //color: BORDER_COLOR,
                 //borderColor: BORDER_COLOR,
-                //borderWidth: 2
+                borderWidth: 2
               },
               ticks: {
                 font: {
@@ -157,7 +148,7 @@ export default {
               grid: {
                 //color: BORDER_COLOR,
                 //borderColor: BORDER_COLOR,
-                //borderWidth: 2
+                borderWidth: 2
               },
               title: {
                 display: true,
@@ -192,12 +183,33 @@ export default {
                   size: 20,
                 }
               }
-            }
           },
+          hoverLinePlugin: {},
+          },
+          onHover: function(_, chartElements) {
+            if(chartElements.length > 0) {
+              const firstPoint = chartElements[0];
+              this.hoverLineX = firstPoint.element.x;
+          } else {
+            delete this.hoverLineX;
+          }
+          this.render();
+        },
+        interaction: {
+          mode: 'nearest',
+          axis: 'x',
+          intersect: false
+        },
+
           tooltips: {
             enabled: true,
-            mode: 'index',
+            mode: 'nearest',
+            axis: 'x',
             intersect: false,
+            bodyFontSize: 18,
+            titleFontSize: 20,
+            backgroundColor: GRID_COLOR,
+            padding: 10,
             callbacks: {
               label: function (tooltipItem, data) {
                 let label = data.labels[tooltipItem.index] || '';
@@ -209,18 +221,6 @@ export default {
         }
       };
       chartInstance = new Chart(ctx, chartConfig);
-
-
-
-      chart.value.addEventListener('mousemove', drawHoverLine);
-
-      chart.value.addEventListener('mouseout', () => {
-        if (hoverLine.value) {
-          hoverLine.value.clear();
-          hoverLine.value = null;
-          chartInstance.update();
-        }
-      });
     });
 
     watch(chartData, (newVal) => {
@@ -238,16 +238,7 @@ export default {
     }),
       onBeforeUnmount(() => {
         if (chartInstance) {
-          chartInstance.destroy()
-
-          chart.value.removeEventListener('mousemove', drawHoverLine);
-          chart.value.removeEventListener('mouseout', () => {
-            if (hoverLine.value) {
-              hoverLine.value.clear();
-              hoverLine.value = null;
-              chartInstance.update();
-            }
-          });
+          chartInstance.destroy();
         }
       });
 
@@ -269,5 +260,7 @@ export default {
 
 canvas {
   background-color: transparent !important;
+  width: 100%!important;
+  height:auto !important;
 }
 </style>
