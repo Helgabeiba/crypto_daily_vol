@@ -208,7 +208,7 @@ export default {
     }
 
     function registerHoverLinePlugin() {
-      Chart.register({
+      const hoverLinePlugin = {
         id: 'hoverLinePlugin',
         afterDraw: function (chartInstance) {
           if (chartInstance.hoverLineX !== undefined) {
@@ -226,7 +226,9 @@ export default {
             ctx.restore();
           }
         }
-      });
+      };
+
+      Chart.register(hoverLinePlugin);
     }
 
     function initializeOrUpdateChart() {
@@ -324,15 +326,18 @@ export default {
               },
               hoverLinePlugin: {},
             },
-            onHover: function (_, chartElements) {
+            onHover: function (event, chartElements) {
+              const prevHoverLineX = this.hoverLineX;
               if (chartElements.length > 0) {
                 const firstPoint = chartElements[0];
                 this.hoverLineX = firstPoint.element.x;
               } else {
                 delete this.hoverLineX;
               }
+              if(this.hoverLineX !== prevHoverLineX) {
               this.render();
-            },
+            }
+          },
             interaction: {
               mode: 'nearest',
               axis: 'x',
@@ -368,10 +373,8 @@ export default {
       }
     }
 
-
     registerHoverLinePlugin();
 
-    //When API is available, add dataAvailable check snippet from notes.
     onMounted(async () => {
       const apiData = await fetchDataFromAPI();
       chartData.value = transformData(apiData);
@@ -418,7 +421,6 @@ export default {
   display: flex;
   justify-content: center;
   background-color: #10151e;
-  position: relative;
   border-radius: 15px;
   gap: 10px; 
   margin: 20px 1px 20px 1px;
