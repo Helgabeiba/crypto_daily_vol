@@ -46,6 +46,20 @@ export default {
       });
       return maxVal;
     }
+
+    function findMinValue(datasets) {
+      let minVal = Infinity;
+      datasets.forEach(dataset => {
+        const datasetMin = Math.min(...dataset.data);
+        if (datasetMin < minVal) {
+          minVal = datasetMin;
+        }
+      });
+      return minVal;
+    }
+
+
+
     /*     const data = [
           {
             "name": "Firi",
@@ -160,12 +174,20 @@ export default {
         bare_bitcoin: '#FD8002'
       };
 
+      const exchangeNameMapping = {
+        miraiex: 'Firi',
+        nbx: 'NBX',
+        bitnord: 'JuJu',
+        bare_bitcoin: 'Bare Bitcoin'
+      };
+
       Object.keys(colors).forEach(exchange => {
+        const newName = exchangeNameMapping[exchange];
         const data = rawData.map(day => {
           return day.stats[exchange] && day.stats[exchange].NOK.allTotal || 0;
         });
         datasets.push({
-          label: exchange,
+          label: newName,
           backgroundColor: colors[exchange],
           borderColor: colors[exchange],
           fill: false,
@@ -215,6 +237,9 @@ export default {
       } else {
         const highestValue = findMaxValue(chartData.value);
         const yAxisMax = highestValue * 4;
+        const lowestValue = findMinValue(chartData.value);
+        const yAxisMin = lowestValue;
+
         const ctx = chart.value.getContext('2d');
 
         const chartConfig = {
@@ -226,45 +251,44 @@ export default {
           options: {
             layout: {
               padding: {
-                left: 15,
-                right: 15
+                left: 1,
+                right: 4,
               }
             },
             responsive: true,
             scales: {
               x: {
                 grid: {
-                  //color: BORDER_COLOR,
-                  //borderColor: BORDER_COLOR,
-                  borderWidth: 2
+                  display: false,
                 },
                 ticks: {
                   font: {
-                    size: 20
+                    size: 10
                   }
                 },
               },
               y: {
                 type: 'logarithmic',
-                suggestedMin: 10000000,
-                suggestedMax: 1000000000,
                 grace: '5%',
                 grid: {
-                  borderWidth: 2
+                  display: false,
                 },
-                max: yAxisMax,
+                suggestedMax: yAxisMax,
+                suggestedMin: yAxisMin,
+                min: 100,
                 title: {
                   display: true,
                   text: 'Volum',
                   font: {
-                    size: 25,
+                    size: 15,
                   }
                 },
                 ticks: {
                   maxTicksLimit: 20,
                   callback: function (value) {
-                    const tickValues = [100, 1000, 10000, 100000, 1000000, 10000000, 25000000, 50000000];
+                    const tickValues = [1000, 10000, 100000, 1000000, 10000000, 25000000, 50000000, 75000000];
                     if (tickValues.includes(value)) {
+                      if (value === 75000000) return '75M';
                       if (value === 50000000) return '50M';
                       if (value === 25000000) return '25M';
                       if (value === 10000000) return '10M';
@@ -274,13 +298,13 @@ export default {
                       if (value === 100000) return '100k';
                       if (value === 50000) return '50k';
                       if (value === 10000) return '10k';
-                      if (value === 5000) return '5k';
                       if (value === 1000) return '1k';
+                      if (value === 100) return '100';
                     }
                     return '';
                   },
                   font: {
-                    size: 20
+                    size: 10,
                   }
                 }
               }
@@ -291,9 +315,10 @@ export default {
                 position: 'bottom',
                 align: 'center',
                 labels: {
+                  padding: 8,
                   font: {
                     family: "'Poppins','sans-serif'",
-                    size: 20,
+                    size: 12,
                   }
                 }
               },
@@ -319,8 +344,8 @@ export default {
               mode: 'nearest',
               axis: 'x',
               intersect: false,
-              bodyFontSize: 22,
-              titleFontSize: 24,
+              bodyFontSize: 20,
+              titleFontSize: 22,
               backgroundColor: GRID_COLOR,
               padding: 10,
               callbacks: {
@@ -383,10 +408,10 @@ export default {
   font-family: Poppins, sans-serif;
   background: #10151e;
   position: relative;
-  margin: 20px;
+  margin: 10px;
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-  padding: 30px 25px 50px 25px;
+  padding: 10px 25px 10px 25px;
 }
 
 .button-group {
@@ -403,12 +428,12 @@ export default {
 
 .button-group button {
   font-family: Poppins, sans-serif;
-  font-size: 18px;
+  font-size: 12px;
   font-weight: 400;
-  height: 2.5em;
-  padding: 1rem;
-  line-height: 1;
-  margin: 20px 8px 20px 8px;
+  height: 3em;
+  padding: 0px 9px;
+  line-height: 0.2;
+  margin: 10px 10px 10px 10px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
