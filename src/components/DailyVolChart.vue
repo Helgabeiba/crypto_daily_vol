@@ -3,12 +3,12 @@
 <template>
   <div>
     <div class="button-group">
-      <button @click="setPeriod('7')"> 7D</button>
-      <button @click="setPeriod('30')"> 1M</button>
-      <button @click="setPeriod('90')"> 3M</button>
-      <button @click="setPeriod('365')"> 12M</button>
-      <button @click="setPeriod('YTD')"> YTD</button>
-      <button @click="setPeriod('all')"> Fra start</button>
+      <button :class="{ 'active': selectedPeriod === '7' }" @click="setPeriod('7')"> 7D</button>
+      <button :class="{ 'active': selectedPeriod === '30' }" @click="setPeriod('30')"> 1M</button>
+      <button :class="{ 'active': selectedPeriod === '90' }" @click="setPeriod('90')"> 3M</button>
+      <button :class="{ 'active': selectedPeriod === '365' }" @click="setPeriod('365')"> 12M</button>
+      <button :class="{ 'active': selectedPeriod === 'YTD' }" @click="setPeriod('YTD')"> YTD</button>
+      <button :class="{ 'active': selectedPeriod === 'all' }" @click="setPeriod('all')"> Fra start</button>
     </div>
     <div class="chart-container" v-if="dataAvailable">
       <canvas ref="chart"></canvas>
@@ -90,16 +90,16 @@ export default {
       let startDate;
       switch (period) {
         case '7':
-          startDate = new Date(now.setDate(now.getDate() - 7));
+          startDate = new Date(now.setDate(now.getDate() - 8));
           break;
         case '30':
-          startDate = new Date(now.setDate(now.getDate() - 30));
+          startDate = new Date(now.setDate(now.getDate() - 31));
           break;
         case '90':
-          startDate = new Date(now.setDate(now.getDate() - 90));
+          startDate = new Date(now.setDate(now.getDate() - 91));
           break;
         case '365':
-          startDate = new Date(now.setDate(now.getDate() - 365));
+          startDate = new Date(now.setDate(now.getDate() - 366));
           break;
         case 'YTD':
           startDate = new Date(now.getFullYear(), 0, 1);
@@ -133,6 +133,7 @@ export default {
     }
 
     function setPeriod(period) {
+      console.log("Setting period to:", period)
       selectedPeriod.value = period;
       fetchDataAndRenderChart();
     }
@@ -372,7 +373,7 @@ export default {
         }
       });
 
-    return { chart, dataAvailable, setPeriod };
+    return { chart, dataAvailable, setPeriod, selectedPeriod };
   }
 }
 </script>
@@ -380,34 +381,55 @@ export default {
 <style scoped>
 .chart-container {
   font-family: Poppins, sans-serif;
-  background: #030e19;
+  background: #10151e;
   position: relative;
-  margin: 20px 0;
-  border-radius: 8px;
+  margin: 20px;
+  border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-  padding: 50px 100px 20px 50px;
+  padding: 30px 25px 50px 25px;
 }
 
 .button-group {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 15px;
+  background-color: #10151e;
+  position: relative;
+  border-radius: 15px;
+  gap: 10px; 
+  margin: 20px 1px 20px 1px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);;
+
 }
 
 .button-group button {
-  padding: 10px 20px;
+  font-family: Poppins, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  height: 2.5em;
+  padding: 1rem;
+  line-height: 1;
+  margin: 20px 8px 20px 8px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  background-color: #030e19;
-  color: #fff;
+  background-color: #10151e;
+  color: #b3b0b0;
+  box-shadow: 1px 1px 1px 0 #050608;
+}
+
+.button-group button:active {
+  background-color: #FFC108;
+  color: #000000;
+}
+
+.button-group button.active {
+  background-color: #FFC108;
+  color: #000000;
 }
 
 canvas {
   background-color: transparent !important;
   width: 100% !important;
   height: auto !important;
-  padding-bottom: 1.5rem !important;
 }
 </style>
