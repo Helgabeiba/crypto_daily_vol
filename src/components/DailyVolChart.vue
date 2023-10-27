@@ -336,15 +336,20 @@ export default {
                   },
                 },
               },
-/*               tooltips: {
-                callbacks: {
-                  label: function (tooltipItem, data) {
-                    const dataset = data.datasets[tooltipItem.datasetIndex];
-                    const currentValue = dataset.data[tooltipItem.index];
-                    return `${dataset.label}: ${currentValue} NOK`;
-                  },
-                },
-              }, */
+              tooltip: {
+            callbacks: {
+                label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                        label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                        label += new Intl.NumberFormat('nb-NO', {style: 'decimal', minimumFractionDigits: 0}).format(context.parsed.y) + ' NOK';  // Append 'NOK' to the value
+                    }
+                    return label;
+                }
+            }
+        },
               hoverLinePlugin: {},
             },
             onHover: function (_, chartElements) {
