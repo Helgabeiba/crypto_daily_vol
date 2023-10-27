@@ -3,29 +3,78 @@
 <template>
   <div>
     <div class="button-group">
-      <button :class="{ 'active': selectedPeriod === '7' }" @click="setPeriod('7')"> 7D</button>
-      <button :class="{ 'active': selectedPeriod === '30' }" @click="setPeriod('30')"> 1M</button>
-      <button :class="{ 'active': selectedPeriod === '90' }" @click="setPeriod('90')"> 3M</button>
-      <button :class="{ 'active': selectedPeriod === '365' }" @click="setPeriod('365')"> 12M</button>
-      <button :class="{ 'active': selectedPeriod === 'YTD' }" @click="setPeriod('YTD')"> YTD</button>
-      <button :class="{ 'active': selectedPeriod === 'all' }" @click="setPeriod('all')"> Fra start</button>
+      <button
+        :class="{ active: selectedPeriod === '7' }"
+        @click="setPeriod('7')"
+      >
+        7D
+      </button>
+      <button
+        :class="{ active: selectedPeriod === '30' }"
+        @click="setPeriod('30')"
+      >
+        1M
+      </button>
+      <button
+        :class="{ active: selectedPeriod === '90' }"
+        @click="setPeriod('90')"
+      >
+        3M
+      </button>
+      <button
+        :class="{ active: selectedPeriod === '365' }"
+        @click="setPeriod('365')"
+      >
+        12M
+      </button>
+      <button
+        :class="{ active: selectedPeriod === 'YTD' }"
+        @click="setPeriod('YTD')"
+      >
+        YTD
+      </button>
+      <button
+        :class="{ active: selectedPeriod === 'all' }"
+        @click="setPeriod('all')"
+      >
+        Fra start
+      </button>
     </div>
     <div class="chart-container" v-if="dataAvailable">
       <canvas ref="chart"></canvas>
     </div>
-    <div v-else>
-      Data is not available.
-    </div>
+    <div v-else>Data is not available.</div>
   </div>
 </template>
-  
-<script>
-import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
-import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title, LogarithmicScale } from 'chart.js';
-import axios from 'axios';
 
-Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip, Title, LogarithmicScale);
-const GRID_COLOR = '#b3b0b0';
+<script>
+import { ref, onMounted, watch, onBeforeUnmount } from "vue";
+import {
+  Chart,
+  LineController,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Tooltip,
+  Title,
+  LogarithmicScale,
+} from "chart.js";
+import axios from "axios";
+
+Chart.register(
+  LineController,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Tooltip,
+  Title,
+  LogarithmicScale
+);
+const GRID_COLOR = "#b3b0b0";
 
 export default {
   setup() {
@@ -34,11 +83,11 @@ export default {
     const chart = ref(null);
     const dataAvailable = ref(true);
     let chartInstance = null;
-    const selectedPeriod = ref('all');
+    const selectedPeriod = ref("all");
 
     function findMaxValue(datasets) {
       let maxVal = -Infinity;
-      datasets.forEach(dataset => {
+      datasets.forEach((dataset) => {
         const datasetMax = Math.max(...dataset.data);
         if (datasetMax > maxVal) {
           maxVal = datasetMax;
@@ -49,7 +98,7 @@ export default {
 
     function findMinValue(datasets) {
       let minVal = Infinity;
-      datasets.forEach(dataset => {
+      datasets.forEach((dataset) => {
         const datasetMin = Math.min(...dataset.data);
         if (datasetMin < minVal) {
           minVal = datasetMin;
@@ -57,65 +106,23 @@ export default {
       });
       return minVal;
     }
-
-
-
-    /*     const data = [
-          {
-            "name": "Firi",
-            "data": [
-              { "date": "2023-01-01", "nokVolume": "1877179" },
-              { "date": "2023-01-02", "nokVolume": "1234379" },
-              { "date": "2023-01-03", "nokVolume": "823179" },
-              { "date": "2023-01-04", "nokVolume": "1003923" }
-            ]
-          },
-          {
-            "name": "NBX",
-            "data": [
-              { "date": "2023-01-01", "nokVolume": "1246787" },
-              { "date": "2023-01-02", "nokVolume": "946787" },
-              { "date": "2023-01-03", "nokVolume": "1146433" },
-              { "date": "2023-01-04", "nokVolume": "14346787" }
-            ]
-          },
-          {
-            "name": "JuJu",
-            "data": [
-              { "date": "2023-01-01", "nokVolume": "15597" },
-              { "date": "2023-01-02", "nokVolume": "20597" },
-              { "date": "2023-01-03", "nokVolume": "10597" },
-              { "date": "2023-01-04", "nokVolume": "8597" }
-            ]
-          },
-          {
-            "name": "BareBitcoin",
-            "data": [
-              { "date": "2023-01-01", "nokVolume": "34242" },
-              { "date": "2023-01-02", "nokVolume": "12323" },
-              { "date": "2023-01-03", "nokVolume": "54342" },
-              { "date": "2023-01-04", "nokVolume": "76453" }
-            ]
-          }
-        ]; */
-
     async function fetchDataFromAPI(period) {
       const now = new Date();
       let startDate;
       switch (period) {
-        case '7':
+        case "7":
           startDate = new Date(now.setDate(now.getDate() - 8));
           break;
-        case '30':
+        case "30":
           startDate = new Date(now.setDate(now.getDate() - 31));
           break;
-        case '90':
+        case "90":
           startDate = new Date(now.setDate(now.getDate() - 91));
           break;
-        case '365':
+        case "365":
           startDate = new Date(now.setDate(now.getDate() - 366));
           break;
-        case 'YTD':
+        case "YTD":
           startDate = new Date(now.getFullYear(), 0, 1);
           break;
         default:
@@ -125,29 +132,31 @@ export default {
       const params = startDate ? { startDate: startDate.toISOString() } : {};
 
       try {
-        const response = await axios.get('https://kryptopris.no/api/stats/history', {
-          params: params,
-          mode: 'no-cors'
-        });
+        const response = await axios.get(
+          "https://kryptopris.no/api/stats/history",
+          {
+            params: params,
+            mode: "no-cors",
+          }
+        );
 
         let data = response.data;
 
         if (startDate) {
-          data = data.filter(item => new Date(item.date) >= startDate);
+          data = data.filter((item) => new Date(item.date) >= startDate);
         }
 
         console.log(data);
         return data;
-
       } catch (error) {
-        console.error('Failed to get exchange data', error);
+        console.error("Failed to get exchange data", error);
         dataAvailable.value = false;
         return [];
       }
     }
 
     function setPeriod(period) {
-      console.log("Setting period to:", period)
+      console.log("Setting period to:", period);
       selectedPeriod.value = period;
       fetchDataAndRenderChart();
     }
@@ -160,56 +169,56 @@ export default {
 
     function transformData(rawData) {
       if (!rawData.length) {
-        console.error('No data to transform');
+        console.error("No data to transform");
         return [];
       }
 
-      labels.value = rawData.map(entry => entry.date);
+      labels.value = rawData
+        .map((entry) => {
+          const [year, month, day] = entry.date.split("-");
+          return `${day}-${month}-${year}`;
+        })
+        .reverse();
 
       const datasets = [];
       const colors = {
-        miraiex: '#474aee',
-        nbx: '#beed5e',
-        bitnord: '#f8f9fa',
-        bare_bitcoin: '#FD8002'
+        miraiex: "#474aee",
+        nbx: "#beed5e",
+        bitnord: "#f8f9fa",
+        bare_bitcoin: "#FD8002",
       };
 
       const exchangeNameMapping = {
-        miraiex: 'Firi',
-        nbx: 'NBX',
-        bitnord: 'JuJu',
-        bare_bitcoin: 'Bare Bitcoin'
+        miraiex: "Firi",
+        nbx: "NBX",
+        bitnord: "JuJu",
+        bare_bitcoin: "Bare Bitcoin",
       };
 
-      Object.keys(colors).forEach(exchange => {
+      Object.keys(colors).forEach((exchange) => {
         const newName = exchangeNameMapping[exchange];
-        const data = rawData.map(day => {
-          return day.stats[exchange] && day.stats[exchange].NOK.allTotal || 0;
-        });
+        const data = rawData
+          .map((day) => {
+            return (
+              (day.stats[exchange] && day.stats[exchange].NOK.allTotal) || 0
+            );
+          })
+          .reverse();
         datasets.push({
           label: newName,
           backgroundColor: colors[exchange],
           borderColor: colors[exchange],
           fill: false,
-          data
+          data,
         });
       });
-      /*       rawData.forEach(exchange => {
-              datasets.push({
-                label: exchange.name,
-                backgroundColor: colors[exchange.name],
-                borderColor: colors[exchange.name],
-                fill: false,
-                data: exchange.data.map(entry => entry.nokVolume)
-              });
-            }); */
 
       return datasets;
     }
 
     function registerHoverLinePlugin() {
       const hoverLinePlugin = {
-        id: 'hoverLinePlugin',
+        id: "hoverLinePlugin",
         afterDraw: function (chartInstance) {
           if (chartInstance.hoverLineX !== undefined) {
             const ctx = chartInstance.ctx;
@@ -225,7 +234,7 @@ export default {
             ctx.stroke();
             ctx.restore();
           }
-        }
+        },
       };
 
       Chart.register(hoverLinePlugin);
@@ -242,20 +251,20 @@ export default {
         const lowestValue = findMinValue(chartData.value);
         const yAxisMin = lowestValue;
 
-        const ctx = chart.value.getContext('2d');
+        const ctx = chart.value.getContext("2d");
 
         const chartConfig = {
-          type: 'line',
+          type: "line",
           data: {
             labels: labels.value,
-            datasets: chartData.value
+            datasets: chartData.value,
           },
           options: {
             layout: {
               padding: {
                 left: 1,
                 right: 4,
-              }
+              },
             },
             responsive: true,
             scales: {
@@ -265,13 +274,13 @@ export default {
                 },
                 ticks: {
                   font: {
-                    size: 10
-                  }
+                    size: 10,
+                  },
                 },
               },
               y: {
-                type: 'logarithmic',
-                grace: '5%',
+                type: "logarithmic",
+                grace: "5%",
                 grid: {
                   display: false,
                 },
@@ -280,53 +289,65 @@ export default {
                 min: 100,
                 title: {
                   display: true,
-                  text: 'Volum',
+                  text: "Volum",
                   font: {
                     size: 15,
-                  }
+                  },
                 },
                 ticks: {
                   maxTicksLimit: 20,
                   callback: function (value) {
-                    const tickValues = [1000, 10000, 100000, 1000000, 10000000, 25000000, 50000000, 75000000];
+                    const tickValues = [
+                      1000, 10000, 100000, 1000000, 10000000, 25000000,
+                      50000000, 75000000,
+                    ];
                     if (tickValues.includes(value)) {
-                      if (value === 75000000) return '75M';
-                      if (value === 50000000) return '50M';
-                      if (value === 25000000) return '25M';
-                      if (value === 10000000) return '10M';
-                      if (value === 5000000) return '5M';
-                      if (value === 1000000) return '1M';
-                      if (value === 500000) return '500k';
-                      if (value === 100000) return '100k';
-                      if (value === 50000) return '50k';
-                      if (value === 10000) return '10k';
-                      if (value === 1000) return '1k';
-                      if (value === 100) return '100';
+                      if (value === 75000000) return "75M";
+                      if (value === 50000000) return "50M";
+                      if (value === 25000000) return "25M";
+                      if (value === 10000000) return "10M";
+                      if (value === 5000000) return "5M";
+                      if (value === 1000000) return "1M";
+                      if (value === 500000) return "500k";
+                      if (value === 100000) return "100k";
+                      if (value === 50000) return "50k";
+                      if (value === 10000) return "10k";
+                      if (value === 1000) return "1k";
+                      if (value === 100) return "100";
                     }
-                    return '';
+                    return "";
                   },
                   font: {
                     size: 10,
-                  }
-                }
-              }
+                  },
+                },
+              },
             },
             plugins: {
               legend: {
                 display: true,
-                position: 'bottom',
-                align: 'center',
+                position: "bottom",
+                align: "center",
                 labels: {
                   padding: 8,
                   font: {
                     family: "'Poppins','sans-serif'",
                     size: 12,
-                  }
-                }
+                  },
+                },
               },
+/*               tooltips: {
+                callbacks: {
+                  label: function (tooltipItem, data) {
+                    const dataset = data.datasets[tooltipItem.datasetIndex];
+                    const currentValue = dataset.data[tooltipItem.index];
+                    return `${dataset.label}: ${currentValue} NOK`;
+                  },
+                },
+              }, */
               hoverLinePlugin: {},
             },
-            onHover: function (event, chartElements) {
+            onHover: function (_, chartElements) {
               const prevHoverLineX = this.hoverLineX;
               if (chartElements.length > 0) {
                 const firstPoint = chartElements[0];
@@ -334,40 +355,16 @@ export default {
               } else {
                 delete this.hoverLineX;
               }
-              if(this.hoverLineX !== prevHoverLineX) {
-              this.render();
-            }
-          },
-            interaction: {
-              mode: 'nearest',
-              axis: 'x',
-              intersect: false
-            },
-
-            tooltips: {
-              enabled: true,
-              mode: 'nearest',
-              axis: 'x',
-              intersect: false,
-              bodyFontSize: 20,
-              titleFontSize: 22,
-              backgroundColor: GRID_COLOR,
-              padding: 10,
-              callbacks: {
-                title: function(toolTipItems) {
-                  console.log("Title callback called");
-                  const date = new Date(toolTipItems[0].label);
-                  const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug","Sept","Okt","Nov","Des"
-                ];
-                return date.getDate() + "." + monthNames[date.getMonth()] + "." + date.getFullYear();
-                },
-                label: function (tooltipItem, data) {
-                  console.log("Label callback called");
-                  return data.datasets[tooltipItem.datasetIndex].label + ": " + tooltipItem.formattedValue + "NOK";
-                }
+              if (this.hoverLineX !== prevHoverLineX) {
+                this.render();
               }
-            }
-          }
+            },
+            interaction: {
+              mode: "nearest",
+              axis: "x",
+              intersect: false,
+            },
+          },
         };
         chartInstance = new Chart(ctx, chartConfig);
       }
@@ -382,12 +379,16 @@ export default {
       initializeOrUpdateChart();
     });
 
-    watch(chartData, (newVal) => {
-      if (chartInstance) {
-        chartInstance.data.datasets = newVal;
-        chartInstance.update();
-      }
-    }, { deep: true });
+    watch(
+      chartData,
+      (newVal) => {
+        if (chartInstance) {
+          chartInstance.data.datasets = newVal;
+          chartInstance.update();
+        }
+      },
+      { deep: true }
+    );
 
     watch(labels, (newLabels) => {
       if (chartInstance) {
@@ -402,8 +403,8 @@ export default {
       });
 
     return { chart, dataAvailable, setPeriod, selectedPeriod };
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -422,10 +423,9 @@ export default {
   justify-content: center;
   background-color: #10151e;
   border-radius: 15px;
-  gap: 10px; 
+  gap: 10px;
   margin: 20px 1px 20px 1px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);;
-
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
 }
 
 .button-group button {
@@ -445,12 +445,12 @@ export default {
 }
 
 .button-group button:active {
-  background-color: #FFC108;
+  background-color: #ffc108;
   color: #000000;
 }
 
 .button-group button.active {
-  background-color: #FFC108;
+  background-color: #ffc108;
   color: #000000;
 }
 

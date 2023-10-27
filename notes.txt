@@ -1,0 +1,20 @@
+
+For the API dataAvailable check:
+onMounted(async () => {
+  try {
+    const response = await axios.get('API_ENDPOINT');
+    if (response.data) {
+      chartData.value = transformData(response.data);
+      dataAvailable.value = true;
+    }
+  } catch (error) {
+    console.error('Failed to get exchange data', error);
+    dataAvailable.value = false;
+  }
+
+  if (dataAvailable.value) {
+    const ctx = chart.value.getContext('2d');
+    //no change between
+    chartInstance = new Chart(ctx, chartConfig);
+  }
+});
